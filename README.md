@@ -1,6 +1,8 @@
-# ROS 2 Jazzy + TurtleBot3 Docker環境
+# trc2027-sim — ROS 2 Jazzy + TurtleBot3 Docker環境
 
 ROS 2 Jazzy / Gazebo Sim (Harmonic) / TurtleBot3 を全員同じ環境で動かすためのDocker構成です。
+鳥取ローバーチャレンジ2027向けの、開発用PC（WSL2 / ネイティブUbuntu）のシミュレーション環境です。
+Jetson（実機）で動かすコードは [trc2027-rover](https://github.com/Richiesss/trc2027-rover) にあります。
 
 ## 必要なもの
 
@@ -14,8 +16,8 @@ ROS 2 Jazzy / Gazebo Sim (Harmonic) / TurtleBot3 を全員同じ環境で動か�
 ## 初回セットアップ
 
 ```bash
-git clone <このリポジトリ> ros2_tb3_docker
-cd ros2_tb3_docker
+git clone https://github.com/Richiesss/trc2027-sim.git
+cd trc2027-sim
 
 cp .env.example .env
 # .env を開いて COMPOSE_FILE を自分の環境（WSL2 / ネイティブUbuntu）に合わせる
