@@ -85,24 +85,27 @@ Host trc-dev
 
 ## 4. リポジトリを並べて clone する
 
-2つのリポジトリを、**同じフォルダの中に並べて**置きます。
+作業用のフォルダ `~/trc2027` を作り、その中に2つのリポジトリを**並べて**置きます。
 
 ```bash
-cd ~
+mkdir -p ~/trc2027
+cd ~/trc2027
 git clone https://github.com/Richiesss/trc2027-sim.git
 git clone https://github.com/Richiesss/trc2027-rover.git
 ```
 
 ```
-~/
+~/trc2027/
 ├── trc2027-sim/     # シミュレーション環境（Gazebo + TurtleBot3）
 └── trc2027-rover/   # 本番のコード（rover/）と Jetson 用の設定
 ```
 
+2つが同じフォルダに並んでいれば、`.env` の `ROVER_REPO=../trc2027-rover` はそのまま使えます。
+
 ## 5. シミュレーション環境を作る
 
 ```bash
-cd ~/trc2027-sim
+cd ~/trc2027/trc2027-sim
 cp .env.example .env
 ```
 
@@ -154,7 +157,7 @@ ls ~/ws/src/rover                       # trc2027-rover/rover の中身が見え
 ## 7. 普段の開発の流れ
 
 1. Mac の VS Code で、Remote-SSH から `trc-dev` につなぐ
-2. `~/trc2027-rover/rover/` に ROS 2 パッケージを作って編集する
+2. `~/trc2027/trc2027-rover/rover/` に ROS 2 パッケージを作って編集する
 3. コンテナ内でビルドしてシミュレーションで試す
    ```bash
    cd ~/ws
