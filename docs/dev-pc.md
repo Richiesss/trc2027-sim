@@ -1,16 +1,19 @@
-# 開発用PC（Ubuntu）のセットアップ
+# 開発用機（Ubuntu）のセットアップ
 
-鳥取ローバーチャレンジ2027のソフトウェアを開発する、Ubuntu PC の準備手順です。
+鳥取ローバーチャレンジ2027のソフトウェアを開発するマシンの準備手順です。
+
+> 現在の開発用機は Tailscale 名 `ubuntu-developer`（100.64.238.46）。Jetson（aarch64、L4T R36.5.0 / JetPack 6.2.2、Ubuntu 22.04.5）で、本番用の Jetson とは別の機体です。
+> 通常の x86 PC を開発用機にする場合も、同じ手順で使えます。
 
 ## 役割分担
 
 | マシン | 使い道 |
 | --- | --- |
-| **開発用PC（Ubuntu）** | ROS 2 のプログラムを書き、シミュレーション（Gazebo）で試す。このページの対象 |
-| Jetson（実機） | 駆動テストやセンサの確認など、実機でしかできない作業。ハードウェア開発と共用 |
-| Mac | 開発用PC・Jetson に SSH（Tailscale）でつないで作業する手元の端末 |
+| **開発用機**（ubuntu-developer） | ROS 2 のプログラムを書き、シミュレーション（Gazebo）で試す。このページの対象 |
+| 本番用 Jetson（ローバーに載せる） | 駆動テストやセンサの確認など、実機でしかできない作業。ハードウェア開発と共用 |
+| Mac | 開発用機・本番用 Jetson に SSH（Tailscale）でつないで作業する手元の端末 |
 
-どちらのマシンでも ROS 2 **Jazzy** を Docker で動かすので、開発用PCで動いたコードはそのまま Jetson に持っていけます。
+どちらのマシンでも ROS 2 **Jazzy** を Docker で動かすので、開発用機で動いたコードはそのまま本番用 Jetson に持っていけます。
 
 ## 1. PCの基本設定
 
@@ -23,13 +26,17 @@ sudo apt install -y git curl openssh-server
 sudo systemctl enable --now ssh
 ```
 
-GPU の有無を確認しておきます（Gazebo の表示が重いときの判断材料）。
+マシンの種類を確認しておきます（Gazebo の表示が重いときの判断材料）。
 
 ```bash
-lspci | grep -i -E "vga|3d"
+uname -m                                # aarch64 なら Jetson などのARM機、x86_64 なら通常のPC
+cat /etc/nv_tegra_release               # Jetson なら L4T のバージョンが出る
+lspci | grep -i -E "vga|3d"             # 通常のPCなら GPU が出る（Jetson は内蔵GPUなので何も出ない）
 ```
 
 ## 2. Docker を入れる
+
+Jetson を SDカードイメージでセットアップした場合は、Docker は最初から入っています。`docker --version` で確認し、出なければ入れます。
 
 ```bash
 curl -fsSL https://get.docker.com | sh
@@ -45,32 +52,33 @@ docker compose version
 
 ## 3. Mac から入れるようにする（Tailscale + SSH）
 
-Jetson と同じ方法です。
+Jetson と同じ方法です。`ubuntu-developer` にはすでに Tailscale が入っているので、名前の変更と鍵の登録だけで済みます。
 
-PC側：
+開発用機側：
 
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up                       # 表示されるURLを Mac のブラウザで開いてログイン（Jetsonと同じアカウント）
-sudo tailscale set --hostname=trc-devpc # Tailscale上の名前
+sudo hostnamectl set-hostname trc-dev   # ホスト名（プロンプトに出る名前）
+sudo tailscale set --hostname=trc-dev   # Tailscale上の名前
 tailscale ip -4                         # 100.x.y.z を控える
 ```
 
-Tailscale の管理画面（login.tailscale.com）→ Machines → このPCの「…」→ **Disable key expiry** で、ログインの期限切れを防ぎます。
+Tailscale の管理画面（login.tailscale.com）→ Machines → このマシンの「…」→ **Disable key expiry** で、ログインの期限切れを防ぎます。
 
 Mac側（鍵を登録して、パスワードなしで入れるようにする）：
 
 ```bash
-ssh-copy-id ユーザー名@trc-devpc
-ssh ユーザー名@trc-devpc
+ssh-copy-id developer@trc-dev
+ssh developer@trc-dev
 ```
 
 `~/.ssh/config` に登録しておくと、VS Code の Remote-SSH からも選べます。
 
 ```
-Host trc-devpc
-  HostName trc-devpc
-  User ユーザー名
+Host trc-dev
+  HostName trc-dev
+  User developer
   IdentityFile ~/.ssh/id_ed25519
   ForwardAgent yes
 ```
@@ -121,7 +129,9 @@ docker compose build
 
 ## 6. 動かしてみる
 
-PC の画面（モニタ）の前で作業する場合：
+開発用機の画面（モニタ）の前で作業する場合：
+
+> Jetson（aarch64）では Gazebo がかなり重くなります。画面が真っ黒・すぐ落ちる場合は、`.env` の `COMPOSE_FILE` に `:compose.software-render.yaml` を足し、`LIBGL_ALWAYS_SOFTWARE=1` にして試してください（ソフトウェア描画は遅いので、軽いワールドで確認する）。
 
 ```bash
 xhost +local:                           # コンテナから画面に描画できるようにする（ログインごとに必要）
@@ -143,7 +153,7 @@ ls ~/ws/src/rover                       # trc2027-rover/rover の中身が見え
 
 ## 7. 普段の開発の流れ
 
-1. Mac の VS Code で、Remote-SSH から `trc-devpc` につなぐ
+1. Mac の VS Code で、Remote-SSH から `trc-dev` につなぐ
 2. `~/trc2027-rover/rover/` に ROS 2 パッケージを作って編集する
 3. コンテナ内でビルドしてシミュレーションで試す
    ```bash
@@ -152,11 +162,11 @@ ls ~/ws/src/rover                       # trc2027-rover/rover の中身が見え
    source install/setup.bash
    ```
 4. 動いたら **trc2027-rover** にコミット・push する
-5. Jetson で `git pull` し、実機で確認する（trc2027-rover の `docs/docker.md`）
+5. 本番用 Jetson で `git pull` し、実機で確認する（trc2027-rover の `docs/docker.md`）
 
 ## Mac から Gazebo の画面を見たいとき
 
-SSH だけでは Gazebo のウィンドウは Mac に出ません。自宅から画面も見たい場合は、PC の画面を VNC で共有する方法を別途設定します（`scripts/start_remote_gazebo.sh` は WSL2 向けのため、ネイティブUbuntu では手順が変わります）。必要になったら追記します。
+SSH だけでは Gazebo のウィンドウは Mac に出ません。自宅から画面も見たい場合は、開発用機の画面を VNC で共有する方法を別途設定します（`scripts/start_remote_gazebo.sh` は WSL2 向けのため、ネイティブUbuntu では手順が変わります）。必要になったら追記します。
 
 ## よくあるトラブル
 
@@ -166,4 +176,4 @@ SSH だけでは Gazebo のウィンドウは Mac に出ません。自宅から
 | Gazebo のウィンドウが出ない | ホストで `xhost +local:` を実行したか確認する |
 | Gazebo が真っ黒・すぐ落ちる | `.env` の `RENDER_GID` を `getent group render` の値に合わせ、`docker compose up -d --force-recreate` |
 | `~/ws/src/rover` が空 | `.env` の `COMPOSE_FILE` に `compose.rover.yaml` が入っているか、`ROVER_REPO` のパスが正しいか確認する |
-| Jetson のトピックが見えない | PC と Jetson の `ROS_DOMAIN_ID` が同じか、同じLANにいるか確認する（Tailscale 越しでは自動発見が通らない） |
+| 本番用 Jetson のトピックが見えない | 開発用機と本番用 Jetson の `ROS_DOMAIN_ID` が同じか、同じLANにいるか確認する（Tailscale 越しでは自動発見が通らない） |
