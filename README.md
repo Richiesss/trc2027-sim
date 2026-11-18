@@ -4,6 +4,9 @@ ROS 2 Jazzy / Gazebo Sim (Harmonic) / TurtleBot3 を全員同じ環境で動か�
 鳥取ローバーチャレンジ2027向けの、開発用PC（WSL2 / ネイティブUbuntu）のシミュレーション環境です。
 Jetson（実機）で動かすコードは [trc2027-rover](https://github.com/Richiesss/trc2027-rover) にあります。
 
+> **チームの開発用PC（Ubuntu）を準備する場合は [docs/dev-pc.md](docs/dev-pc.md) を参照してください。**
+> Docker・Tailscale・SSH の設定と、trc2027-rover の本番コードをこの環境で試す方法をまとめています。
+
 ## 必要なもの
 
 | ホスト | 必要なもの |
@@ -54,6 +57,9 @@ docker compose down                  # 終了
 ├── compose.wsl.yaml      # WSL2 (WSLg) 用の追加設定
 ├── compose.linux.yaml    # ネイティブUbuntu用の追加設定
 ├── compose.software-render.yaml  # GPU初期化に失敗する場合のソフトウェアレンダリング用オーバーレイ
+├── compose.rover.yaml    # trc2027-rover の rover/ をワークスペースに追加するオーバーレイ
+├── docs/
+│   └── dev-pc.md         # チームの開発用PC（Ubuntu）のセットアップ手順
 ├── scripts/
 │   ├── start_remote_gazebo.sh  # コンテナ起動〜Gazebo起動〜VNC共有を一括実行
 │   └── stop_remote_gazebo.sh   # 上記の停止

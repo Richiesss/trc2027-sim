@@ -1,0 +1,12 @@
+# trc2027-rover の rover/（本番のコード）を、このシミュレーション環境のワークスペースに追加するオーバーレイ。
+# 本番のコードをシミュレーションで試すときに使う。
+#
+# 使い方（.env）:
+#   COMPOSE_FILE=compose.yaml:compose.linux.yaml:compose.rover.yaml
+#   ROVER_REPO=../trc2027-rover      # trc2027-rover を clone した場所（このフォルダからの相対パス）
+#
+# コンテナ内では ~/ws/src/rover に見える。編集は trc2027-rover 側で行い、コミットも trc2027-rover にする。
+services:
+  ros:
+    volumes:
+      - ${ROVER_REPO:-../trc2027-rover}/rover:/home/ros/ws/src/rover
