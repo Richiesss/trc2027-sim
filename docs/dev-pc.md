@@ -1,9 +1,11 @@
-# 開発用機（Ubuntu）のセットアップ
+# 開発用機のセットアップ
 
 鳥取ローバーチャレンジ2027のソフトウェアを開発するマシンの準備手順です。
 
-> 現在の開発用機は Tailscale 名 `ubuntu-developer`（100.64.238.46）。Jetson（aarch64、L4T R36.5.0 / JetPack 6.2.2、Ubuntu 22.04.5）で、本番用の Jetson とは別の機体です。
-> 通常の x86 PC を開発用機にする場合も、同じ手順で使えます。
+> **2026/11/26 更新**：開発用機 `trc-dev`（Tailscale 100.82.40.65 / 大学VPN 150.89.235.232）は、JetPack 7.2.1（Ubuntu 24.04）に焼き直し、
+> **ROS 2 Jazzy を直接**入れました（Docker は使いません。外部デバイスや RViz を扱いやすくするため）。
+> trc-dev では、下の「trc-dev（Jazzy を直接使う）」の手順に従ってください。
+> 「Docker を使う場合」の手順は、JetPack 6 の機体や、Docker でシミュレーションしたい普通の PC 向けに残しています。
 
 ## 役割分担
 
@@ -14,6 +16,41 @@
 | Mac | 開発用機・本番用 Jetson に SSH（Tailscale）でつないで作業する手元の端末 |
 
 どちらのマシンでも ROS 2 **Jazzy** を Docker で動かすので、開発用機で動いたコードはそのまま本番用 Jetson に持っていけます。
+
+## trc-dev（Jazzy を直接使う）
+
+### リポジトリの配置
+
+```bash
+mkdir -p ~/trc2027 && cd ~/trc2027
+git clone https://github.com/Richiesss/trc2027-rover.git
+git clone https://github.com/Richiesss/trc2027-sim.git
+```
+
+### 本番のコード（trc2027-rover）
+
+ビルドと実行の手順は trc2027-rover の [docs/setup-native.md](https://github.com/Richiesss/trc2027-rover/blob/main/docs/setup-native.md) を参照。
+
+### シミュレーション（Gazebo + TurtleBot3）を直接動かす
+
+Docker イメージに入れているものと同じパッケージを、apt で入れます。
+
+```bash
+sudo apt update
+sudo apt install -y ros-jazzy-turtlebot3-simulations ros-jazzy-turtlebot3-teleop
+echo 'export TURTLEBOT3_MODEL=burger' >> ~/.bashrc && source ~/.bashrc
+
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+# 別ターミナルで
+ros2 run turtlebot3_teleop teleop_keyboard
+```
+
+- Jetson では Gazebo がかなり重くなります。画面はモニタをつないで見るか、軽いワールドで試してください。
+- SSH だけでは Gazebo の画面は Mac に出ません（リモートで画面を見る方法は未整備）。
+
+---
+
+## Docker を使う場合（JetPack 6 の機体・普通の PC）
 
 ## 1. PCの基本設定
 

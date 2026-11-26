@@ -4,8 +4,8 @@ ROS 2 Jazzy / Gazebo Sim (Harmonic) / TurtleBot3 を全員同じ環境で動か�
 鳥取ローバーチャレンジ2027向けの、開発用PC（WSL2 / ネイティブUbuntu）のシミュレーション環境です。
 Jetson（実機）で動かすコードは [trc2027-rover](https://github.com/Richiesss/trc2027-rover) にあります。
 
-> **チームの開発用機（ubuntu-developer など）を準備する場合は [docs/dev-pc.md](docs/dev-pc.md) を参照してください。**
-> Docker・Tailscale・SSH の設定と、trc2027-rover の本番コードをこの環境で試す方法をまとめています。
+> **チームの開発用機（trc-dev）を準備する場合は [docs/dev-pc.md](docs/dev-pc.md) を参照してください。**
+> trc-dev（JetPack 7 / Ubuntu 24.04）では ROS 2 Jazzy を直接使い、このリポジトリの Docker は使いません。
 
 ## 必要なもの
 
