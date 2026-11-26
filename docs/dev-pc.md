@@ -11,7 +11,7 @@
 
 | マシン | 使い道 |
 | --- | --- |
-| **開発用機**（ubuntu-developer） | ROS 2 のプログラムを書き、シミュレーション（Gazebo）で試す。このページの対象 |
+| **開発用機**（trc-dev） | ROS 2 のプログラムを書き、シミュレーション（Gazebo）で試す。このページの対象 |
 | 本番用 Jetson（ローバーに載せる） | 駆動テストやセンサの確認など、実機でしかできない作業。ハードウェア開発と共用 |
 | Mac | 開発用機・本番用 Jetson に SSH（Tailscale）でつないで作業する手元の端末 |
 
@@ -89,7 +89,7 @@ docker compose version
 
 ## 3. Mac から入れるようにする（Tailscale + SSH）
 
-Jetson と同じ方法です。`ubuntu-developer` にはすでに Tailscale が入っているので、名前の変更と鍵の登録だけで済みます。
+Jetson と同じ方法です。（trc-dev は設定済み）
 
 開発用機側：
 
