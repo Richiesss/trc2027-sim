@@ -65,11 +65,22 @@ docker compose down                  # 終了
 │   └── stop_remote_gazebo.sh   # 上記の停止
 ├── .env.example          # 各自の .env の雛形（.env はコミットしない）
 └── ws/                   # colconワークスペース。コンテナ内の ~/ws にマウントされる
-    └── src/              # 自作パッケージはここに置く
+    └── src/              # シミュレーション専用のパッケージを置く（下の「コードの置き場所」参照）
 ```
 
 `ws/` はホストと共有されているので、ホスト側のVS Codeで編集してコンテナ内で `colcon build` できます。
 `ws/install/setup.bash` は、ビルド済みならコンテナに入ったときに自動で読み込まれます。
+
+### コードの置き場所
+
+| 置くもの | 置き場所 |
+| --- | --- |
+| **ローバーの本番コード**（実機の Jetson で動かすもの：GNSS、位置推定、走行制御など） | **[trc2027-rover](https://github.com/Richiesss/trc2027-rover) の `rover/`** |
+| **シミュレーション専用のもの**（大会フィールドの Gazebo ワールド、Gazebo 用のローバーのモデル、シミュレーションの launch など） | このリポジトリの `ws/src/` |
+
+本番コードをシミュレーションで試すときは、trc2027-rover を並べて clone し、`.env` の `COMPOSE_FILE` に `compose.rover.yaml` を足すと、
+コンテナ内の `~/ws/src/rover` に trc2027-rover の `rover/` が見えるようになります（[docs/dev-pc.md](docs/dev-pc.md) 参照）。
+本番コードをこのリポジトリにコピーしないでください（2か所で別々に変わってしまうため）。
 
 ```bash
 # コンテナ内
